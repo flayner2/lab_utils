@@ -1,11 +1,18 @@
 from Bio import Entrez
 from Bio.Entrez.Parser import ListElement
+import os
+import sys
 
-
+# Change this to your valid email
 USR_EMAIL = 'flayner5@gmail.com'
 
 
 class Taxon():
+    """Defines a Taxon object containing a name, a taxon id, a count of the
+    available EST sequences and a list of all EST sequence ids. Attributes
+    should be accessed via the defined getters and setters;
+    """
+
     def __init__(self, name: str, tax_id: str, est_count: int, est_list: list = []) -> None:
         self.name = name
         self.tax_id = tax_id
@@ -35,11 +42,21 @@ class Taxon():
 
     def set_est_list(self, est_list: list) -> None:
         self.est_list = est_list
+        self.est_list.sort()
 
 
 def fetch_est_seq(id: str, email: str = USR_EMAIL) -> str:
-    print(f'Fetching id: {id}')    
+    """Retrieves the sequence for a particular EST id in fasta format
 
+    Args:
+        id (str): the EST sequence id
+        email (str, optional): a valid e-mail address. Defaults to USR_EMAIL.
+
+    Returns:
+        str: the EST sequence in fasta format, with its identifier
+    """
+    print(f'Fetching id: {id}')    
+   
     Entrez.email = email
 
     handle = Entrez.efetch(db='nucleotide', id=id, rettype='fasta')
@@ -49,6 +66,16 @@ def fetch_est_seq(id: str, email: str = USR_EMAIL) -> str:
 
 
 def search_id(query_term: str, retmax: int, email: str = USR_EMAIL) -> ListElement:
+    """Searches NCBI Nucleotide for all available EST sequence ids for a taxon
+
+    Args:
+        query_term (str): the Entrez-style query for each taxon
+        retmax (int): the total count of EST sequences for that taxon
+        email (str, optional): a valid e-mail address. Defaults to USR_EMAIL.
+
+    Returns:
+        ListElement: a list-like object with all EST sequence ids for a taxon
+    """
     Entrez.email = email
 
     handle = Entrez.esearch(db='nucleotide', term=query_term, retmax=retmax)
@@ -58,22 +85,48 @@ def search_id(query_term: str, retmax: int, email: str = USR_EMAIL) -> ListEleme
 
 
 def retrieve_est_ids(taxon: Taxon) -> None:
-    est_query = f'txid{taxon.get_tax_id()} [orgn] AND is_est[filter]'
+    """Wrapper to retrieve the EST ids and construct the ids list for a Taxon
+
+    Args:
+        taxon (Taxon): a valid Taxon object
+    """
+    est_query = f'txid{taxon.get_tax_id()}[orgn] AND is_est[filter]'
     est_ids = search_id(query_term=est_query, retmax=taxon.get_est_count())
 
     taxon.set_est_list(est_ids)
 
 
 def build_seq_and_write(taxon: Taxon) -> None:
+    """Concatenates all sequences from a particular Taxon on a single file
+    and writes them to it
+
+    Args:
+        taxon (Taxon): a valid Taxon object with a non-empty EST ids list
+    """
     file = f'{taxon.get_name()}_ests.fasta'
+    last_index = f'{taxon.get_name()}_last_index.txt'
+    curr_indx = 0
+
+    if os.path.exists(last_index):
+        with open(last_index, 'r') as f:
+            curr_indx = int(f.read().strip())
 
     with open(file, 'w') as outfile:
-        for id in taxon.get_est_list():
-            each_seq = fetch_est_seq(id)
-            outfile.write(each_seq)
+        for index, id in enumerate(taxon.get_est_list()[curr_indx:]):
+            try:
+                each_seq = fetch_est_seq(id)
+                outfile.write(each_seq)
+            except:
+                with open(last_index, 'w') as f:
+                    f.write(str(index))
+                    sys.exit()
 
 
 def main() -> None:
+    # Change this to be a list of your taxon objects.
+    # The taxon name is gonna be used to generate the output file names.
+    # You can get the EST counts by manually querying NCBI Nucleotide or
+    # by using `get_db_counts.py`
     taxa = [Taxon('Apis_mellifera', '7460', 169511), Taxon(
         'Solenopsis_invicta', '13686', 22883), Taxon('Polistes_canadensis', '91411', 43)]
 
