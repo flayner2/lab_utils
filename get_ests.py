@@ -38,6 +38,8 @@ class Taxon():
 
 
 def fetch_est_seq(id: str, email: str = USR_EMAIL) -> str:
+    print(f'Fetching id: {id}')    
+
     Entrez.email = email
 
     handle = Entrez.efetch(db='nucleotide', id=id, rettype='fasta')
