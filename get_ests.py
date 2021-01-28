@@ -1,6 +1,7 @@
 from Bio import Entrez
 from Bio.Entrez.Parser import ListElement
-
+import os
+import sys
 
 # Change this to your valid email
 USR_EMAIL = 'flayner5@gmail.com'
@@ -41,6 +42,7 @@ class Taxon():
 
     def set_est_list(self, est_list: list) -> None:
         self.est_list = est_list
+        self.est_list.sort()
 
 
 def fetch_est_seq(id: str, email: str = USR_EMAIL) -> str:
@@ -100,11 +102,22 @@ def build_seq_and_write(taxon: Taxon) -> None:
         taxon (Taxon): a valid Taxon object with a non-empty EST ids list
     """
     file = f'{taxon.get_name()}_ests.fasta'
+    last_index = f'{taxon.get_name()}_last_index.txt'
+    curr_indx = 0
+
+    if os.path.exists(last_index):
+        with open(last_index, 'r') as f:
+            curr_indx = int(f.read().strip())
 
     with open(file, 'w') as outfile:
-        for id in taxon.get_est_list():
-            each_seq = fetch_est_seq(id)
-            outfile.write(each_seq)
+        for index, id in enumerate(taxon.get_est_list()[curr_indx:]):
+            try:
+                each_seq = fetch_est_seq(id)
+                outfile.write(each_seq)
+            except:
+                with open(last_index, 'w') as f:
+                    f.write(str(index))
+                    sys.exit()
 
 
 def main() -> None:
