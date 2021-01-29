@@ -1,7 +1,6 @@
 from Bio import Entrez
 from Bio.Entrez.Parser import ListElement
-import os
-import sys
+import math
 
 # Change this to your valid email
 USR_EMAIL = 'flayner5@gmail.com'
@@ -49,7 +48,7 @@ def fetch_est_seq(id_list: list, email: str = USR_EMAIL) -> str:
     """Retrieves the sequence for a particular EST id in fasta format
 
     Args:
-        id (str): the EST sequence id
+        id_list (list): the EST sequence ids list
         email (str, optional): a valid e-mail address. Defaults to USR_EMAIL.
 
     Returns:
@@ -103,10 +102,21 @@ def build_seq_and_write(taxon: Taxon) -> None:
     """
     print(f'Fetching for taxon: {taxon.get_name()}')
     file = f'{taxon.get_name()}_ests.fasta'
-   
+
     with open(file, 'w') as outfile:
-        seqs = fetch_est_seq(taxon.get_est_list())
-        outfile.write(seqs)
+        est_list = taxon.get_est_list()
+
+        if len(est_list) >= 10000:
+            while len(est_list) >= 10000:
+                seqs = fetch_est_seq(est_list[:10000])
+                outfile.write(seqs)
+                del est_list[:10000]
+
+            seqs = fetch_est_seq(est_list)
+            outfile.write(seqs)
+        else:
+            seqs = fetch_est_seq(est_list)
+            outfile.write(seqs)
 
 
 def main() -> None:
