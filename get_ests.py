@@ -45,7 +45,7 @@ class Taxon():
         self.est_list.sort()
 
 
-def fetch_est_seq(id: str, email: str = USR_EMAIL) -> str:
+def fetch_est_seq(id_list: list, email: str = USR_EMAIL) -> str:
     """Retrieves the sequence for a particular EST id in fasta format
 
     Args:
@@ -55,11 +55,9 @@ def fetch_est_seq(id: str, email: str = USR_EMAIL) -> str:
     Returns:
         str: the EST sequence in fasta format, with its identifier
     """
-    print(f'Fetching id: {id}')    
-   
     Entrez.email = email
 
-    handle = Entrez.efetch(db='nucleotide', id=id, rettype='fasta')
+    handle = Entrez.efetch(db='nucleotide', id=id_list, rettype='fasta')
     result = handle.read()
 
     return result
@@ -103,23 +101,12 @@ def build_seq_and_write(taxon: Taxon) -> None:
     Args:
         taxon (Taxon): a valid Taxon object with a non-empty EST ids list
     """
+    print(f'Fetching for taxon: {taxon.get_name()}')
     file = f'{taxon.get_name()}_ests.fasta'
-    last_index = f'{taxon.get_name()}_last_index.txt'
-    curr_indx = 0
-
-    if os.path.exists(last_index):
-        with open(last_index, 'r') as f:
-            curr_indx = int(f.read().strip())
-
+   
     with open(file, 'w') as outfile:
-        for index, id in enumerate(taxon.get_est_list()[curr_indx:]):
-            try:
-                each_seq = fetch_est_seq(id)
-                outfile.write(each_seq)
-            except:
-                with open(last_index, 'w') as f:
-                    f.write(str(index))
-                    sys.exit()
+        seqs = fetch_est_seq(taxon.get_est_list())
+        outfile.write(seqs)
 
 
 def main() -> None:
