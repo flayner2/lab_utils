@@ -82,7 +82,7 @@ def write_out(file: str, collection: dict[str, dict[str, StringElement]]) -> Non
             # Change the accessed keys accordingly
             outfile.write(
                 (
-                    f'{k},{v["est_counts"]},{v["mrna_counts"]},'
+                    f'{k.removeprefix("txid")},{v["est_counts"]},{v["mrna_counts"]},'
                     f'{v["refseq_counts"]},'
                     f'{v["sra_illumina_rnaseq_counts"]}\n'
                 )
