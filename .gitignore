@@ -2,3 +2,4 @@
 .vscode
 taxids.txt
 *.fasta*
+*.csv
