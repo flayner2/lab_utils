@@ -1,5 +1,6 @@
 import pickle
 import os
+import pandas as pd
 from typing import Union
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
@@ -7,27 +8,21 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 
-def load_env_vars(env_path: str, key: str) -> Union[str, None]:
-    load_dotenv(dotenv_path=env_path, override=True)
+def load_env_vars(key: str) -> Union[str, None]:
+    load_dotenv(override=True)
 
     return os.getenv(key)
 
 
-# Environment variables configuration
-env_path = os.path.join(
-    os.path.expanduser("~/Documents/programming/python/projects/hymenoptera_data"),
-    ".env",
-)
-
 # The ID and range of a sample spreadsheet.
-SPREADSHEET_ID = load_env_vars(env_path, "SPREADSHEET_ID")
-SPREADSHEET_RANGE = "data!A1:W72"
+SPREADSHEET_ID = load_env_vars("SPREADSHEET_ID")
+SPREADSHEET_RANGE = load_env_vars("SPREADSHEET_RANGE")
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
 
-def main():
+def load_data() -> Union[pd.DataFrame, None]:
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
     """
@@ -62,11 +57,14 @@ def main():
 
     if not values:
         print("No data found.")
-    else:
 
-        for row in values[1:]:
-            print(row)
+        return None
+    else:
+        # Change this to fit the shape of your own data
+        data = pd.DataFrame(data=values[1:], columns=values[0])
+
+        return data
 
 
 if __name__ == "__main__":
-    main()
+    load_data()

@@ -5,3 +5,4 @@ taxids.txt
 *.csv
 .env
 *.json
+token.pickle

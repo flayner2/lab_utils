@@ -14,7 +14,8 @@ Each script is documented on itself. If you have any doubts on how to run each s
 - `get_ests.py`: retrieves all EST sequences for a certain taxon specified by a taxon id from NCBI Nucleotide and outputs a file with all EST sequences for that particular taxon. Each taxon and the respective name, taxon id and EST counts are hard-coded. You can get the EST counts using `get_db_counts.py`;
 - `get_longest_seq.pl`: gets the longest coding sequence for each locus from a fasta format ORFs file. It runs on a single file and outputs to the STDOUT, so its better used with a `for` loop and a redirection (`>`) operator;
 - `get_prot_ids.sh`: extracts the protein ids from a fasta file where this information is describred (in the sequence identifier). Path to input files is the only argument. You could also copy the command and run from the command line directly;
-- `get_seq_efetch.pl`: uses Entrez's efetch to retrieve all protein sequences from a set of protein identifiers. Identifiers are passed by a line-separated file. Runs on a single file each time so it's better used with a `for` loop. No need to redirect the output since output files are generated automatically.
+- `get_seq_efetch.pl`: uses Entrez's efetch to retrieve all protein sequences from a set of protein identifiers. Identifiers are passed by a line-separated file. Runs on a single file each time so it's better used with a `for` loop. No need to redirect the output since output files are generated automatically;
+- `hymenoptera_data.py`: connects to the Google Docs API to load data from a particular Google sheet into memmory, as a Pandas DataFrame;
 
 # 3. External resources
 
