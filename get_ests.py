@@ -1,18 +1,19 @@
 from Bio import Entrez
 from Bio.Entrez.Parser import ListElement
-import math
 
 # Change this to your valid email
-USR_EMAIL = 'flayner5@gmail.com'
+USR_EMAIL = "flayner5@gmail.com"
 
 
-class Taxon():
+class Taxon:
     """Defines a Taxon object containing a name, a taxon id, a count of the
     available EST sequences and a list of all EST sequence ids. Attributes
     should be accessed via the defined getters and setters;
     """
 
-    def __init__(self, name: str, tax_id: str, est_count: int, est_list: list = []) -> None:
+    def __init__(
+        self, name: str, tax_id: str, est_count: int, est_list: list = []
+    ) -> None:
         self.name = name
         self.tax_id = tax_id
         self.est_count = est_count
@@ -56,7 +57,7 @@ def fetch_est_seq(id_list: list, email: str = USR_EMAIL) -> str:
     """
     Entrez.email = email
 
-    handle = Entrez.efetch(db='nucleotide', id=id_list, rettype='fasta')
+    handle = Entrez.efetch(db="nucleotide", id=id_list, rettype="fasta")
     result = handle.read()
 
     return result
@@ -75,10 +76,10 @@ def search_id(query_term: str, retmax: int, email: str = USR_EMAIL) -> ListEleme
     """
     Entrez.email = email
 
-    handle = Entrez.esearch(db='nucleotide', term=query_term, retmax=retmax)
+    handle = Entrez.esearch(db="nucleotide", term=query_term, retmax=retmax)
     result = Entrez.read(handle)
 
-    return result['IdList']
+    return result["IdList"]
 
 
 def retrieve_est_ids(taxon: Taxon) -> None:
@@ -87,7 +88,7 @@ def retrieve_est_ids(taxon: Taxon) -> None:
     Args:
         taxon (Taxon): a valid Taxon object
     """
-    est_query = f'txid{taxon.get_tax_id()}[orgn] AND is_est[filter]'
+    est_query = f"txid{taxon.get_tax_id()}[orgn] AND is_est[filter]"
     est_ids = search_id(query_term=est_query, retmax=taxon.get_est_count())
 
     taxon.set_est_list(est_ids)
@@ -100,10 +101,10 @@ def build_seq_and_write(taxon: Taxon) -> None:
     Args:
         taxon (Taxon): a valid Taxon object with a non-empty EST ids list
     """
-    print(f'Fetching for taxon: {taxon.get_name()}')
-    file = f'{taxon.get_name()}_ests.fasta'
+    print(f"Fetching for taxon: {taxon.get_name()}")
+    file = f"{taxon.get_name()}_ests.fasta"
 
-    with open(file, 'w') as outfile:
+    with open(file, "w") as outfile:
         est_list = taxon.get_est_list()
 
         if len(est_list) >= 10000:
@@ -124,13 +125,16 @@ def main() -> None:
     # The taxon name is gonna be used to generate the output file names.
     # You can get the EST counts by manually querying NCBI Nucleotide or
     # by using `get_db_counts.py`
-    taxa = [Taxon('Apis_mellifera', '7460', 169511), Taxon(
-        'Solenopsis_invicta', '13686', 22883), Taxon('Polistes_canadensis', '91411', 43)]
+    taxa = [
+        Taxon("Apis_mellifera", "7460", 169511),
+        Taxon("Solenopsis_invicta", "13686", 22883),
+        Taxon("Polistes_canadensis", "91411", 43),
+    ]
 
     for taxon in taxa:
         retrieve_est_ids(taxon)
         build_seq_and_write(taxon)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
