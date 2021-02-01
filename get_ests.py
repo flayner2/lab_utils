@@ -46,14 +46,14 @@ class Taxon:
 
 
 def fetch_est_seq(id_list: list, email: str = USR_EMAIL) -> str:
-    """Retrieves the sequence for a particular EST id in fasta format
+    """Retrieves the sequence for a collection of ESTs in fasta format
 
     Args:
         id_list (list): the EST sequence ids list
         email (str, optional): a valid e-mail address. Defaults to USR_EMAIL.
 
     Returns:
-        str: the EST sequence in fasta format, with its identifier
+        str: the EST sequences in fasta format, with their identifiers
     """
     Entrez.email = email
 
@@ -95,8 +95,8 @@ def retrieve_est_ids(taxon: Taxon) -> None:
 
 
 def build_seq_and_write(taxon: Taxon) -> None:
-    """Concatenates all sequences from a particular Taxon on a single file
-    and writes them to it
+    """Wraps the EST sequence fetching functions and writes the sequences
+    to a fasta file for each particular taxon.
 
     Args:
         taxon (Taxon): a valid Taxon object with a non-empty EST ids list
