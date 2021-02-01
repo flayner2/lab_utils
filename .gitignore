@@ -3,3 +3,5 @@
 taxids.txt
 *.fasta*
 *.csv
+.env
+*.json
