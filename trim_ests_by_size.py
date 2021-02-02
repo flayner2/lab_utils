@@ -19,7 +19,7 @@ def filter_by_size(seq: SeqRecord, n: int) -> bool:
 def main() -> None:
     infile = sys.argv[1]
     f_format = "fasta"
-    min_size = 50
+    min_size = int(sys.argv[2])
 
     for seq in SeqIO.parse(infile, f_format):
         if filter_by_size(seq, min_size):
@@ -38,8 +38,10 @@ def test_filter_by_size() -> None:
 
 def sanitize_args() -> None:
     """Checks if the user provided an argument before running"""
-    if len(sys.argv) < 2:
-        sys.exit("Run this script with your input file as the only argument")
+    if len(sys.argv) < 3:
+        sys.exit(
+            "Run this script with the following args: [path_to_input] [min_seq_size]"
+        )
 
 
 if __name__ == "__main__":
