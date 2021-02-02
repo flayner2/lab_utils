@@ -36,5 +36,12 @@ def test_filter_by_size() -> None:
     assert filter_by_size(invalid_seq, min_size) is False
 
 
+def sanitize_args() -> None:
+    """Checks if the user provided an argument before running"""
+    if len(sys.argv) < 2:
+        sys.exit("Run this script with your input file as the only argument")
+
+
 if __name__ == "__main__":
+    sanitize_args()
     main()
