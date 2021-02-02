@@ -1,5 +1,6 @@
 from Bio import SeqIO
 from Bio.SeqIO import SeqRecord
+import sys
 
 
 def filter_by_size(seq: SeqRecord, n: int) -> bool:
@@ -15,18 +16,24 @@ def filter_by_size(seq: SeqRecord, n: int) -> bool:
     return len(seq) > n
 
 
-def main():
-    for seq in SeqIO.parse("./Polistes_canadensis_ests.fasta", "fasta"):
-        pass
+def main() -> None:
+    infile = sys.argv[1]
+    f_format = "fasta"
+    min_size = 50
+
+    for seq in SeqIO.parse(infile, f_format):
+        if filter_by_size(seq, min_size):
+            print(seq.format(f_format))
 
 
-def test_filter_by_size():
+def test_filter_by_size() -> None:
+    """Tests the function filter_by_size. Run with pytest"""
     valid_seq = SeqRecord(seq="ACTGCTG", id="valid")
     invalid_seq = SeqRecord(seq="ACTG", id="invalid")
     min_size = 5
 
-    assert filter_by_size(valid_seq, min_size) == True
-    assert filter_by_size(invalid_seq, min_size) == False
+    assert filter_by_size(valid_seq, min_size) is True
+    assert filter_by_size(invalid_seq, min_size) is False
 
 
 if __name__ == "__main__":
