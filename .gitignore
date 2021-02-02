@@ -1,10 +1,10 @@
 .pytest_cache
 .vscode
 taxids.txt
-*.fasta*
+local_data
 *.csv
 .env
 *.json
 token.pickle
-*.ipynb
+test*
 __pycache__
