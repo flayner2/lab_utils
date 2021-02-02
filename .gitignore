@@ -6,3 +6,5 @@ taxids.txt
 .env
 *.json
 token.pickle
+*.ipynb
+__pycache__

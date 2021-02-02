@@ -63,6 +63,34 @@ def load_data() -> Union[pd.DataFrame, None]:
         # Change this to fit the shape of your own data
         data = pd.DataFrame(data=values[1:], columns=values[0])
 
+        int_columns = [
+            "sociality_level",
+            "individuals_per_colony_min",
+            "individuals_per_colony_max",
+            "individuals_per_colony_base10_exp",
+            "count_ests",
+            "count_mrna",
+            "count_refseq",
+            "count_sra_illumina_rnaseq",
+            "situation_code",
+        ]
+
+        for column in int_columns:
+            data[column] = pd.to_numeric(data[column], errors="coerce")
+
+        percent_columns = [
+            "busco_completeness",
+            "busco_complete_single_copy",
+            "busco_complete_duplicated",
+            "busco_fragmented",
+            "busco_missing",
+        ]
+
+        for column in percent_columns:
+            data[column] = data[column].apply(
+                lambda x: pd.to_numeric(x.replace("%", ""), errors="coerce")
+            )
+
         return data
 
 
