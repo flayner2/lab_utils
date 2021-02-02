@@ -91,6 +91,10 @@ def load_data() -> Union[pd.DataFrame, None]:
                 lambda x: pd.to_numeric(x.replace("%", ""), errors="coerce")
             )
 
+        data["date_added"] = pd.to_datetime(
+            data["date_added"], yearfirst=True, format="%Y-%m-%d"
+        )
+
         return data
 
 
