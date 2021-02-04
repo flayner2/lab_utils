@@ -8,3 +8,4 @@ local_data
 token.pickle
 test*
 __pycache__
+local_data
