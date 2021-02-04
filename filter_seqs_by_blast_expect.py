@@ -75,10 +75,10 @@ def main():
     current_dir = os.getcwd()
     infile = os.path.join(current_dir, sys.argv[1])
     subject_path = os.path.join(current_dir, sys.argv[2])
+
     # Edit this string if you want to change the name of the Blast output
     blast_outname = f'{infile.split("/")[-1].split(".")[0]}_blast.xml'
     blast_outpath = os.path.join(current_dir, blast_outname)
-
     perform_blast(infile, e_thresshold, subject_path, blast_outname)
     ids_list = check_expect(blast_outpath, e_thresshold)
 
