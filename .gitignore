@@ -1,11 +1,9 @@
 .pytest_cache
 .vscode
 taxids.txt
-local_data
 *.csv
 .env
 *.json
 token.pickle
 test*
 __pycache__
-local_data
