@@ -7,9 +7,9 @@ Example run inside LGM: `python3 gbff_to_fna.py`
 """
 
 # Change this to the input path containing your files
-input_path = "../data/genomes/"
+input_path = "../eusociality/local_data/genomes/"
 # Chage this to the desired output path. It doesn't need to already be created
-output_path = "../data/fna/"
+output_path = "./data/fna/"
 
 for filename in os.listdir(input_path):
     if filename.endswith(".gbff"):
