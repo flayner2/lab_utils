@@ -7,3 +7,4 @@ taxids.txt
 token.pickle
 test*
 __pycache__
+coc-settings.json
