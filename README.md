@@ -6,6 +6,7 @@ A simple repository to store all the utility scripts I use for my daily work on 
 
 Each script is documented on itself. If you have any doubts on how to run each script, check the internal documentation. Here I provide a brief description of each script, in alphabetical order:
 
+- `blast_2_bed`: a program written in Rust that converts a BLAST `.tsv` output generated with `-outfmt` 6 or 7 to a BED file. Multiple alignments for the same query sequence are numbered as something like `Query1_1`, `Query1_2` and so forth. This is an executable so you can just run it directly. To run this, do `./blast_2_bed < [input_file]` or `cat [input_file] | blast_2_bed`, since `blast_2_bed` expects an input from the `STDIN`. The source code for `blast_2_bed` can be found [here](https://github.com/flayner2/blast_2_bed);
 - `create_df_from_sheets.py`: connects to the Google Docs API to load data from a particular Google sheet into memmory, as a Pandas DataFrame. Check the [reference](https://developers.google.com/sheets/api/quickstart/python) for additional information on dependencies, keys, permissions and how to modify the code for your needs. You will also need [python-dotenv](https://pypi.org/project/python-dotenv/), [pandas](https://pypi.org/project/pandas/) and a `.env` file like the `.env.example` one provided within this repository. This is not meant to be ran directly. Instead, import this from another Python script and execute it like the example:
 
   ```python
@@ -13,8 +14,6 @@ Each script is documented on itself. If you have any doubts on how to run each s
 
   data = load_data()
   ```
-
-- `blast_2_bed`: a program written in Rust that converts a BLAST `.tsv` output generated with `-outfmt` 6 or 7 to a BED file. Multiple alignments for the same query sequence are numbered as something like `Query1_1`, `Query1_2` and so forth. This is an executable so you can just run it directly. To run this, do `./blast_2_bed < [input_file]` or `cat [input_file] | blast_2_bed`, since `blast_2_bed` expects an input from the `STDIN`. The source code for `blast_2_bed` can be found [here](https://github.com/flayner2/blast_2_bed);
 - `create_dict.sh`: create a dictionary file for KOMODO2 for a specific database from a set of Interproscan output files;
 - `create_symlinks.sh`: creates a set of shorter-named symbolic links from a set of KOMODO2 input files (the parsed id/descriptor files). This is useful for trimming the multiple file extensions and shortening the species names for better visual output/tree branch naming;
 - `extract_ORF.pl`: exctract all filtered and quality-controlled Open Reading Frames from a set of genome files (e.g. `.gbff` annotation files);
