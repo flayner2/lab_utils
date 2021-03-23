@@ -76,6 +76,7 @@ def build_output(
 
         for contig in fasta:
             for b_record in bed:
+                # FIXME
                 if contig["contig"] != b_record["contig"]:
                     break
 
