@@ -2,9 +2,10 @@ from Bio import SeqIO
 
 import sys
 import csv
+from collections import defaultdict
 
 
-def read_bed(path: str) -> list[dict]:
+def read_bed(path: str) -> dict[str, list]:
     """
     A BED file is nothing more than a tsv file so this simple function just reads a
     tsv file with a specific conformation, that is, the output of bedtools intersect
@@ -14,10 +15,10 @@ def read_bed(path: str) -> list[dict]:
         path (str): a path to a BED file.
 
     Returns:
-        list[dict]: a list of dictionaries containing information about each contig
+        dict[str, list]: a dictionary containing information about each contig
         on a BED file.
     """
-    result = []
+    result = defaultdict(list)
 
     with open(path, "r") as bed_file:
         csv_reader = csv.reader(bed_file, delimiter="\t")
@@ -25,11 +26,12 @@ def read_bed(path: str) -> list[dict]:
         for row in csv_reader:
             each_row = {}
             each_row["scaffold"] = row[0]
-            each_row["contig"] = row[3]
             each_row["locus"] = row[7]
             each_row["op_len"] = int(row[-1])
 
-            result.append(each_row)
+            contig = row[3]
+
+            result[contig].append(each_row)
 
     return result
 
@@ -75,15 +77,12 @@ def build_output(
         outfile.write("scaffold\tcontig\tlocus\top_len\tcontig_len\tcoverage\n")
 
         for contig in fasta:
-            for b_record in bed:
-                # FIXME
-                if contig["contig"] != b_record["contig"]:
-                    break
+            for b_record in bed[contig["contig"]]:
 
                 coverage = b_record["op_len"] / contig["len"]
                 outfile.write(
                     (
-                        f"{b_record['scaffold']}\t{b_record['contig']}\t"
+                        f"{b_record['scaffold']}\t{contig['contig']}\t"
                         f"{b_record['locus']}\t{b_record['op_len']}\t{contig['len']}\t"
                         f"{coverage}\n"
                     )
