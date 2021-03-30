@@ -23,15 +23,41 @@ def read_bed(path: str) -> dict[str, list]:
     with open(path, "r") as bed_file:
         csv_reader = csv.reader(bed_file, delimiter="\t")
 
+        locus = ""
+        contig = ""
+        op_len = 0
+
         for row in csv_reader:
-            each_row = {}
-            each_row["scaffold"] = row[0]
-            each_row["locus"] = row[7]
-            each_row["op_len"] = int(row[-1])
+            if locus == "" and contig == "":
+                locus = row[7]
+                contig = row[3]
+                scaffold = row[0]
+                op_len += int(row[-1])
+            elif contig == row[3]:
+                if locus == row[7]:
+                    op_len += int(row[-1])
+                elif result.get(contig) is not None:
+                    for each_hsp in result[contig]:
+                        if each_hsp["locus"] == row[7]:
+                            each_hsp["op_len"] += int(row[-1])
+                else:
+                    each_row = {}
+                    each_row["scaffold"] = row[0]
+                    each_row["op_len"] = int(row[-1])
+                    each_row["locus"] = row[7]
 
-            contig = row[3]
+                    result[contig].append(each_row)
+            else:
+                each_row = {}
+                each_row["scaffold"] = scaffold
+                each_row["op_len"] = op_len
+                each_row["locus"] = locus
 
-            result[contig].append(each_row)
+                result[contig].append(each_row)
+
+                locus = row[7]
+                contig = row[3]
+                op_len = int(row[-1])
 
     return result
 
