@@ -21,7 +21,7 @@ def read_bed(path: str) -> dict[str, list]:
     result = defaultdict(list)
 
     with open(path, "r") as bed_file:
-        csv_reader = csv.reader(bed_file, delimiter="\t")
+        csv_reader = list(csv.reader(bed_file, delimiter="\t"))
 
         locus = ""
         contig = ""
@@ -33,6 +33,7 @@ def read_bed(path: str) -> dict[str, list]:
                 contig = row[3]
                 scaffold = row[0]
                 op_len += int(row[-1])
+
             elif contig == row[3]:
                 if locus == row[7]:
                     op_len += int(row[-1])
@@ -59,6 +60,38 @@ def read_bed(path: str) -> dict[str, list]:
                 contig = row[3]
                 op_len = int(row[-1])
 
+            if len(csv_reader) == 1:
+                each_row = {}
+                each_row["scaffold"] = scaffold
+                each_row["op_len"] = op_len
+                each_row["locus"] = locus
+
+                result[contig].append(each_row)
+            elif row == csv_reader[-1]:
+                found = False
+
+                if result.get(contig) is not None:
+                    for entry in result[contig]:
+                        if entry["locus"] == locus:
+                            found = True
+                            entry["op_len"] += op_len
+                            break
+
+                    if not found:
+                        each_row = {}
+                        each_row["scaffold"] = scaffold
+                        each_row["op_len"] = op_len
+                        each_row["locus"] = locus
+
+                        result[contig].append(each_row)
+                else:
+                    each_row = {}
+                    each_row["scaffold"] = scaffold
+                    each_row["op_len"] = op_len
+                    each_row["locus"] = locus
+
+                    result[contig].append(each_row)
+
     return result
 
 
@@ -78,7 +111,12 @@ def read_fasta(path: str) -> list[dict]:
 
     for record in SeqIO.parse(path, "fasta"):
         each_record = {}
-        each_record["contig"] = record.id
+
+        if len(record.id.split(".")) <= 2:
+            each_record["contig"] = record.id
+        else:
+            each_record["contig"] = record.id.split(".")[-1]
+
         each_record["len"] = len(record.seq)
 
         results.append(each_record)
