@@ -33,10 +33,10 @@ def load_text_file(path: str) -> list[str]:
 def find_genes_in_annotation(
     records: Generator, genes: list[str], exclude: list[str] = []
 ) -> tuple[str, list[SeqRecord]]:
-    """Finds any term from a list of terms in the description of a SeqRecord object,
+    """Finds any term from a list of terms in the features of a SeqRecord object,
     excluding any term from a list of exclusions, and returns a tuple with the name of
-    the originating species and a list of all the SeqRecord objects that pass the said
-    checks.
+    the originating species and a list of SeqRecord objects for all features that pass
+    those checks.
 
     Arguments:
         records (Generator): a Generator object which yields SeqRecord objects. Usually
