@@ -51,22 +51,56 @@ def find_genes_in_annotation(
     """
     first_record = next(records)
     species_name = first_record.annotations["organism"]
-
-    result = [
-        record
-        for record in records
-        if any(gene.lower() in record.description.lower() for gene in genes)
-        and not any(
-            exclusion.lower() in record.description.lower() for exclusion in exclude
+    first_record_features = [
+        SeqRecord(
+            seq=feature.extract(first_record.seq),
+            id=feature.qualifiers["gene"][0],
+            name=feature.qualifiers["gene"][0],
+            description=feature.qualifiers["product"][0],
+        )
+        for feature in first_record.features
+        if (
+            (feature.type.lower() == "CDS".lower() or feature.type == "rRNA".lower())
+            and any(
+                gene.lower() in feature.qualifiers["product"][0].lower()
+                for gene in genes
+            )
+            and not any(
+                exclusion.lower() in feature.qualifiers["product"][0].lower()
+                for exclusion in exclude
+            )
         )
     ]
 
-    if any(
-        gene.lower() in first_record.description.lower() for gene in genes
-    ) and not any(
-        exclusion.lower() in first_record.description.lower() for exclusion in exclude
-    ):
-        result.append(first_record)
+    result = [
+        SeqRecord(
+            seq=feature.extract(record.seq),
+            id=feature.qualifiers["gene"][0],
+            name=feature.qualifiers["gene"][0],
+            description=feature.qualifiers["product"][0],
+        )
+        for record in records
+        for feature in record.features
+        if (
+            (
+                feature.type.lower() == "CDS".lower()
+                or feature.type.lower() == "rRNA".lower()
+            )
+            and any(
+                gene.lower() in feature.qualifiers["product"][0].lower()
+                for gene in genes
+            )
+            and not any(
+                exclusion.lower() in feature.qualifiers["product"][0].lower()
+                for exclusion in exclude
+            )
+        )
+    ]
+
+    # print(first_record_features)
+    result.extend(first_record_features)
+
+    print(result)
 
     return species_name, result
 
@@ -160,6 +194,10 @@ def main() -> None:
         found_genes = find_genes_wrapper(
             gbff_folder=args.gbff_path, genes=genes, exclude=exclusions
         )
+        # print(found_genes)
+        # val = list(found_genes.values())
+        # for rec in val[0]:
+        # print(rec.description)
     except Exception as err:
         raise err
 
