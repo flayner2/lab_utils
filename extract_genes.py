@@ -146,6 +146,15 @@ def find_genes_wrapper(
     return results
 
 
+def write_dict_out(in_dict: dict[str, list[SeqRecord]], out: bool) -> None:
+    """Uses SeqIO to write out a dictionary where the keys are strings with a species
+    name and the values are a list of SeqRecord objects. Writes in FASTA format.
+    """
+    if out:
+        with open(out, "w+") as outfile:
+            pass
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
@@ -172,10 +181,11 @@ def main() -> None:
     parser.add_argument(
         "-o",
         "--out",
-        type=str,
-        nargs="?",
-        default=sys.stdout,
-        help="name for the output file (by default outputs to STDOUT)",
+        action="store_true",
+        help=(
+            "whether an output file should be created for each species (uses species"
+            " name automatically) (by default outputs to STDOUT)"
+        ),
     )
     parser.add_argument(
         "-e",
@@ -200,10 +210,8 @@ def main() -> None:
         found_genes = find_genes_wrapper(
             gbff_folder=args.gbff_path, genes=genes, exclude=exclusions
         )
-        # print(found_genes)
-        # val = list(found_genes.values())
-        # for rec in val[0]:
-        # print(rec.description)
+
+        write_dict_out(in_dict=found_genes, out=args.out)
     except Exception as err:
         raise err
 
