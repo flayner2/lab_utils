@@ -7,6 +7,7 @@ import argparse
 from collections import defaultdict
 import os
 import sys
+from typing import Generator
 
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -29,12 +30,49 @@ def load_text_file(path: str) -> list[str]:
     return strings
 
 
-def find_genes_in_annotation() -> tuple(str, list[SeqRecord]):
-    pass
+def find_genes_in_annotation(
+    records: Generator, genes: list[str], exclude: list[str] = []
+) -> tuple[str, list[SeqRecord]]:
+    """Finds any term from a list of terms in the description of a SeqRecord object,
+    excluding any term from a list of exclusions, and returns a tuple with the name of
+    the originating species and a list of all the SeqRecord objects that pass the said
+    checks.
+
+    Arguments:
+        records (Generator): a Generator object which yields SeqRecord objects. Usually
+        this is the return of the `SeqIO.parse()` method from BioPython's Bio module.
+        genes (list[str]): a list of strings to find in the SeqRecord's description.
+        exclude (list[str]): an optional list of strings used to rule out any SeqRecord
+        that contains any of them. Defaults to "[]".
+    Returns:
+        tuple[str, list[SeqRecord]]: a 2-tuple with the name of the organism and a list
+        of SeqRecords that contain any term from `genes` and do not contain any term
+        from `exclude`.
+    """
+    first_record = next(records)
+    species_name = first_record.annotations["organism"]
+
+    result = [
+        record
+        for record in records
+        if any(gene.lower() in record.description.lower() for gene in genes)
+        and not any(
+            exclusion.lower() in record.description.lower() for exclusion in exclude
+        )
+    ]
+
+    if any(
+        gene.lower() in first_record.description.lower() for gene in genes
+    ) and not any(
+        exclusion.lower() in first_record.description.lower() for exclusion in exclude
+    ):
+        result.append(first_record)
+
+    return species_name, result
 
 
 def find_genes_wrapper(
-    gbff_folder: str, genes: list[str], exclude: list = []
+    gbff_folder: str, genes: list[str], exclude: list[str] = []
 ) -> dict[str, list[SeqRecord]]:
     """Wrapper to load gbff files and find the wanted genes in them, while being aware
     of the strings to exclude.
@@ -42,7 +80,8 @@ def find_genes_wrapper(
     Arguments:
         gbff_folder (str): path to the directory containing one or more gbff files.
         genes (list[str]): a list of strings to search in the annotation.
-        exclude (list): a list of strings to exclude from the search. Defaults to "[]".
+        exclude (list[str]): a list of strings to exclude from the search.
+        Defaults to "[]".
     Returns:
         dict[str, list[SeqRecord]]: a dictionary where keys are the name of the species
         to whom the annotation belongs, and values are a list of SeqRecord objects that
@@ -119,7 +158,7 @@ def main() -> None:
             exclusions = []
 
         found_genes = find_genes_wrapper(
-            gbff_folder=args.gbff_path, genes=genes, exclusions=exclusions
+            gbff_folder=args.gbff_path, genes=genes, exclude=exclusions
         )
     except Exception as err:
         raise err
