@@ -21,8 +21,8 @@ def load_text_file(path: str) -> list[str]:
     Returns:
         list[str]: a list of the strings contained in the input file.
     """
-    assert os.path.exists(path), "Please provide a valid path to an existing file"
-    assert os.path.isfile(path), "Please, provide a path to a file, not a directory"
+    assert os.path.exists(path), "Please provide a valid path to an existing file."
+    assert os.path.isfile(path), "Please, provide a path to a file, not a directory."
 
     with open(path, "r") as text_file:
         strings = [each.strip() for each in text_file.readlines()]
@@ -49,6 +49,8 @@ def find_genes_in_annotation(
         of SeqRecords that contain any term from `genes` and do not contain any term
         from `exclude`.
     """
+    assert len(genes) > 0, "Received an empty list of genes. Check your input."
+
     first_record = next(records)
     species_name = first_record.annotations["organism"]
     first_record_features = [
@@ -97,10 +99,7 @@ def find_genes_in_annotation(
         )
     ]
 
-    # print(first_record_features)
     result.extend(first_record_features)
-
-    print(result)
 
     return species_name, result
 
@@ -122,6 +121,13 @@ def find_genes_wrapper(
         match any string from the list of genes and that do not contain any strings
         from the list of exclusions.
     """
+    assert len(genes) > 0, "Received an empty list of genes. Check your input."
+    assert os.path.exists(
+        gbff_folder
+    ), "Please provide a valid path to an existing file."
+    assert os.path.isdir(
+        gbff_folder
+    ), "Please, provide a path to a directory, not a file."
 
     results = defaultdict(list)
 
