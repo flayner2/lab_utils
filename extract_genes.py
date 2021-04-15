@@ -149,10 +149,21 @@ def find_genes_wrapper(
 def write_dict_out(in_dict: dict[str, list[SeqRecord]], out: bool) -> None:
     """Uses SeqIO to write out a dictionary where the keys are strings with a species
     name and the values are a list of SeqRecord objects. Writes in FASTA format.
+
+    Arguments:
+        in_dict (dict[str, list[SeqRecord]]): a dictionary with the species name as
+        keys and a list of SeqRecords as values.
+        out (bool): whether the program should create an output file for each species,
+        with the name generated from the species name or if it should output to STDOUT.
     """
     if out:
-        with open(out, "w+") as outfile:
-            pass
+        for species, genes in in_dict.items():
+            with open(f"{species}_genelist.fasta", "w+") as outfile:
+                SeqIO.write(genes, outfile, "fasta")
+    else:
+        for _, genes in in_dict.items():
+            for gene in genes:
+                print(f"{gene.format('fasta')}")
 
 
 def main() -> None:
