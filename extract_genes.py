@@ -103,7 +103,7 @@ def parse_config_file(path: str) -> dict[int, list[str]]:
 
 
 def find_genes_in_annotation(
-    records: Generator, genes: list[str], exclude: list[str] = []
+    records: Generator, genes: dict[int, list[str]], exclude: dict[int, list[str]] = {}
 ) -> tuple[str, list[SeqRecord]]:
     """Finds any term from a list of terms in the features of a SeqRecord object,
     excluding any term from a list of exclusions, and returns a tuple with the name of
@@ -113,9 +113,10 @@ def find_genes_in_annotation(
     Arguments:
         records (Generator): a Generator object which yields SeqRecord objects. Usually
         this is the return of the `SeqIO.parse()` method from BioPython's Bio module.
-        genes (list[str]): a list of strings to find in the SeqRecord's description.
-        exclude (list[str]): an optional list of strings used to rule out any SeqRecord
-        that contains any of them. Defaults to "[]".
+        genes (dict[int, list[str]]): a dict of strings to find in the SeqRecord's
+        description.
+        exclude (dict[int, list[str]]): an optional dict of strings used to rule out
+        any SeqRecord that contains any of them. Defaults to "{}".
     Returns:
         tuple[str, list[SeqRecord]]: a 2-tuple with the name of the organism and a list
         of SeqRecords that contain any term from `genes` and do not contain any term
@@ -125,6 +126,7 @@ def find_genes_in_annotation(
 
     first_record = next(records)
     species_name = first_record.annotations["organism"]
+
     first_record_features = [
         SeqRecord(
             seq=feature.extract(first_record.seq),
@@ -133,15 +135,18 @@ def find_genes_in_annotation(
             description=feature.qualifiers["product"][0],
         )
         for feature in first_record.features
+        for index, block in genes.items()
         if (
-            (feature.type.lower() == "CDS".lower() or feature.type == "rRNA".lower())
+            (
+                feature.type.lower() == "CDS".lower()
+                or feature.type.lower() == "rRNA".lower()
+            )
             and any(
-                gene.lower() in feature.qualifiers["product"][0].lower()
-                for gene in genes
+                (gene in feature.qualifiers["product"][0].lower()) for gene in block
             )
             and not any(
-                exclusion.lower() in feature.qualifiers["product"][0].lower()
-                for exclusion in exclude
+                exclusion in feature.qualifiers["product"][0].lower()
+                for exclusion in exclude.get(index, [])
             )
         )
     ]
@@ -155,18 +160,16 @@ def find_genes_in_annotation(
         )
         for record in records
         for feature in record.features
+        for index, block in genes.items()
         if (
             (
                 feature.type.lower() == "CDS".lower()
                 or feature.type.lower() == "rRNA".lower()
             )
-            and any(
-                gene.lower() in feature.qualifiers["product"][0].lower()
-                for gene in genes
-            )
+            and any(gene in feature.qualifiers["product"][0].lower() for gene in block)
             and not any(
-                exclusion.lower() in feature.qualifiers["product"][0].lower()
-                for exclusion in exclude
+                exclusion in feature.qualifiers["product"][0].lower()
+                for exclusion in exclude.get(index, [])
             )
         )
     ]
@@ -177,7 +180,7 @@ def find_genes_in_annotation(
 
 
 def find_genes_wrapper(
-    gbff_folder: str, genes: list[str], exclude: list[str] = []
+    gbff_folder: str, genes: dict[int, list[str]], exclude: dict[int, list[str]] = {}
 ) -> dict[str, list[SeqRecord]]:
     """Wrapper to load gbff files and find the wanted genes in them, while being aware
     of the strings to exclude.
@@ -288,7 +291,7 @@ def main() -> None:
         if args.exclude:
             exclusions = parse_config_file(args.exclude)
         else:
-            exclusions = []
+            exclusions = {}
 
         found_genes = find_genes_wrapper(
             gbff_folder=args.gbff_path, genes=genes, exclude=exclusions
