@@ -101,8 +101,8 @@ def parse_config_file(path: str) -> dict[str, list[str]]:
 
 
 def find_genes_in_annotation(
-    records: Generator, genes: dict[int, list[str]], exclude: dict[int, list[str]] = {}
-) -> tuple[str, list[tuple[int, SeqRecord]]]:
+    records: Generator, genes: dict[str, list[str]], exclude: dict[str, list[str]] = {}
+) -> tuple[str, list[tuple[str, SeqRecord]]]:
     """Finds any term from a list of terms in the features of a SeqRecord object,
     excluding any term from a list of exclusions, and returns a tuple with the name of
     the originating species and a list of SeqRecord objects for all features that pass
@@ -111,12 +111,12 @@ def find_genes_in_annotation(
     Arguments:
         records (Generator): a Generator object which yields SeqRecord objects. Usually
         this is the return of the `SeqIO.parse()` method from BioPython's Bio module.
-        genes (dict[int, list[str]]): a dict of strings to find in the SeqRecord's
+        genes (dict[str, list[str]]): a dict of strings to find in the SeqRecord's
         description.
-        exclude (dict[int, list[str]]): an optional dict of strings used to rule out
+        exclude (dict[str, list[str]]): an optional dict of strings used to rule out
         any SeqRecord that contains any of them. Defaults to "{}".
     Returns:
-        tuple[str, list[tuple[int, SeqRecord]]]: a 2-tuple with the name of the species
+        tuple[str, list[tuple[str, SeqRecord]]]: a 2-tuple with the name of the species
         and a list of 2-tuples whith the gene index and the SeqRecords that contain any
         term from `genes` and do not contain any term from `exclude`.
     """
@@ -184,8 +184,8 @@ def find_genes_in_annotation(
 
 
 def find_genes_wrapper(
-    gbff_folder: str, genes: dict[int, list[str]], exclude: dict[int, list[str]] = {}
-) -> dict[str, list[SeqRecord]]:
+    gbff_folder: str, genes: dict[str, list[str]], exclude: dict[str, list[str]] = {}
+) -> dict[str, list[tuple[str, SeqRecord]]]:
     """Wrapper to load gbff files and find the wanted genes in them, while being aware
     of the strings to exclude.
 
@@ -225,7 +225,7 @@ def find_genes_wrapper(
     return results
 
 
-def write_dict_out(in_dict: dict[str, list[SeqRecord]], out: bool) -> None:
+def write_dict_out(in_dict: dict[str, list[tuple[str, SeqRecord]]], out: bool) -> None:
     """Uses SeqIO to write out a dictionary where the keys are strings with a species
     name and the values are a list of SeqRecord objects. Writes in FASTA format.
 
