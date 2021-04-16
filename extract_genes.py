@@ -15,7 +15,7 @@ from Bio.SeqRecord import SeqRecord
 
 def _parse_gene_block(
     gene_line: str, rest: list[str], path: str, gene_number: int
-) -> tuple[int, list[str]]:
+) -> tuple[str, list[str]]:
     """Parses a valid gene block from a config file.
 
     Arguments:
@@ -26,21 +26,19 @@ def _parse_gene_block(
         debugging only.
 
     Returns:
-        tuple[int, list[str]]: a 2-tuple with an integer representing the gene block
+        tuple[str, list[str]]: a 2-tuple with a string representing the gene block
         index and a list of all terms for that gene block.
     """
     genes = []
 
-    try:
-        index = int(gene_line.split()[-1])
-    except ValueError:
-        sys.exit(
-            (
-                f"Error in {path}\n\nline {gene_number}: {gene_line}\n\n"
-                "Found a gene block but the index is invalid. Use"
-                " integers as the indexes of you gene blocks."
-            )
-        )
+    split_line = gene_line.split()
+
+    assert len(split_line) > 1, (
+        f"Error in {path}\n\nline {gene_number}: {gene_line}\n\n You probably forgot"
+        " to add a space between the gene block and the index name."
+    )
+
+    index = split_line[-1]
 
     for line in rest:
         if line.startswith("!") or (line == "\n"):
@@ -53,13 +51,13 @@ def _parse_gene_block(
     return index, genes
 
 
-def parse_config_file(path: str) -> dict[int, list[str]]:
+def parse_config_file(path: str) -> dict[str, list[str]]:
     """Loads a config file with a specified format. Check the example files.
 
     Arguments:
         path (str): the path to the input file.
     Returns:
-        dict[int, list[str]]: a dictionary with a integer representing an index as keys
+        dict[str, list[str]]: a dictionary with a string representing an index as keys
         and a list of strings representing the terms (genes) as values.
     """
     assert os.path.exists(path), "Please provide a valid path to an existing file."
