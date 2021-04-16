@@ -225,23 +225,47 @@ def find_genes_wrapper(
     return results
 
 
-def write_dict_out(in_dict: dict[str, list[tuple[str, SeqRecord]]], out: bool) -> None:
+def write_dict_out(
+    in_dict: dict[str, list[tuple[str, SeqRecord]]],
+    out: str = "",
+    for_species: bool = False,
+) -> None:
     """Uses SeqIO to write out a dictionary where the keys are strings with a species
     name and the values are a list of SeqRecord objects. Writes in FASTA format.
 
     Arguments:
-        in_dict (dict[str, list[SeqRecord]]): a dictionary with the species name as
-        keys and a list of SeqRecords as values.
-        out (bool): whether the program should create an output file for each species,
-        with the name generated from the species name or if it should output to STDOUT.
+        in_dict (dict[str, list[tuple[str, SeqRecord]]]): a dictionary with the species
+        name as keys and a list of tuples of gene identifier and SeqRecords as values.
+        out (str): the path where the program should create the output files for each
+        gene, with the file names generated from the gene identifier. If this is an
+        empty string, prints to STDOUT. Defaults to `""`.
+        for_species (bool): whether the output files should be created for each species
+        instead of each gene. Only works if an output path is also provided. Defaults
+        to `False`.
     """
     if out:
-        for species, genes in in_dict.items():
-            with open(f"{species}_genelist.fasta", "w+") as outfile:
-                SeqIO.write(genes, outfile, "fasta")
+        if for_species:
+            only_genes = []
+            for species, index_and_genes in in_dict.items():
+                for _, gene in index_and_genes:
+                    only_genes.append(gene)
+
+                filename = f"{species.replace(' ', '_')}_genelist.fasta"
+                path = os.path.join(out, filename)
+
+                with open(path, "w+") as outfile:
+                    SeqIO.write(only_genes, outfile, "fasta")
+        else:
+            for species, index_and_genes in in_dict.items():
+                for index, gene in index_and_genes:
+                    filename = f"{index}_list.fasta"
+                    path = os.path.join(out, filename)
+
+                    with open(path, "a+") as outfile:
+                        outfile.write(f"{gene.format('fasta')}\n")
     else:
-        for _, genes in in_dict.items():
-            for gene in genes:
+        for _, index_and_genes in in_dict.items():
+            for _, gene in index_and_genes:
                 print(f"{gene.format('fasta')}")
 
 
