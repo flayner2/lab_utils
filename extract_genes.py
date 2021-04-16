@@ -104,7 +104,7 @@ def parse_config_file(path: str) -> dict[int, list[str]]:
 
 def find_genes_in_annotation(
     records: Generator, genes: dict[int, list[str]], exclude: dict[int, list[str]] = {}
-) -> tuple[str, list[SeqRecord]]:
+) -> tuple[str, list[tuple[int, SeqRecord]]]:
     """Finds any term from a list of terms in the features of a SeqRecord object,
     excluding any term from a list of exclusions, and returns a tuple with the name of
     the originating species and a list of SeqRecord objects for all features that pass
@@ -118,9 +118,9 @@ def find_genes_in_annotation(
         exclude (dict[int, list[str]]): an optional dict of strings used to rule out
         any SeqRecord that contains any of them. Defaults to "{}".
     Returns:
-        tuple[str, list[SeqRecord]]: a 2-tuple with the name of the organism and a list
-        of SeqRecords that contain any term from `genes` and do not contain any term
-        from `exclude`.
+        tuple[str, list[tuple[int, SeqRecord]]]: a 2-tuple with the name of the species
+        and a list of 2-tuples whith the gene index and the SeqRecords that contain any
+        term from `genes` and do not contain any term from `exclude`.
     """
     assert len(genes) > 0, "Received an empty list of genes. Check your input."
 
@@ -128,11 +128,14 @@ def find_genes_in_annotation(
     species_name = first_record.annotations["organism"]
 
     first_record_features = [
-        SeqRecord(
-            seq=feature.extract(first_record.seq),
-            id=feature.qualifiers["gene"][0],
-            name=feature.qualifiers["gene"][0],
-            description=feature.qualifiers["product"][0],
+        (
+            index,
+            SeqRecord(
+                seq=feature.extract(first_record.seq),
+                id=feature.qualifiers["gene"][0],
+                name=feature.qualifiers["gene"][0],
+                description=feature.qualifiers["product"][0],
+            ),
         )
         for feature in first_record.features
         for index, block in genes.items()
@@ -152,11 +155,14 @@ def find_genes_in_annotation(
     ]
 
     result = [
-        SeqRecord(
-            seq=feature.extract(record.seq),
-            id=feature.qualifiers["gene"][0],
-            name=feature.qualifiers["gene"][0],
-            description=feature.qualifiers["product"][0],
+        (
+            index,
+            SeqRecord(
+                seq=feature.extract(record.seq),
+                id=feature.qualifiers["gene"][0],
+                name=feature.qualifiers["gene"][0],
+                description=feature.qualifiers["product"][0],
+            ),
         )
         for record in records
         for feature in record.features
