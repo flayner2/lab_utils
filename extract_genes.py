@@ -13,21 +13,93 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
 
-def load_text_file(path: str) -> list[str]:
-    """Loads a line-separated file containing one or more strings to a list.
+def _parse_gene_block(
+    gene_line: str, rest: list[str], path: str, gene_number: int
+) -> tuple[int, list[str]]:
+    """Parses a valid gene block from a config file.
+
+    Arguments:
+        gene_line (str): the line where the gene block starts.
+        rest (list[str]): the following lines up to the end of the file.
+        path (str): path to the config file. Used for debugging.
+        gene_number (int): line number for the start of the gene block. Used for
+        debugging only.
+
+    Returns:
+        tuple[int, list[str]]: a 2-tuple with an integer representing the gene block
+        index and a list of all terms for that gene block.
+    """
+    genes = []
+
+    try:
+        index = int(gene_line.split()[-1])
+    except ValueError:
+        sys.exit(
+            (
+                f"Error in {path}\n\nline {gene_number}: {gene_line}\n\n"
+                "Found a gene block but the index is invalid. Use"
+                " integers as the indexes of you gene blocks."
+            )
+        )
+
+    for line in rest:
+        if line.startswith("!") or (line == "\n"):
+            pass
+        elif line.startswith("#"):
+            break
+        else:
+            genes.append(line.strip())
+
+    return index, genes
+
+
+def parse_config_file(path: str) -> dict[int, list[str]]:
+    """Loads a config file with a specified format. Check the example files.
 
     Arguments:
         path (str): the path to the input file.
     Returns:
-        list[str]: a list of the strings contained in the input file.
+        dict[int, list[str]]: a dictionary with a integer representing an index as keys
+        and a list of strings representing the terms (genes) as values.
     """
     assert os.path.exists(path), "Please provide a valid path to an existing file."
     assert os.path.isfile(path), "Please, provide a path to a file, not a directory."
 
-    with open(path, "r") as text_file:
-        strings = [each.strip() for each in text_file.readlines()]
+    config = defaultdict(list)
 
-    return strings
+    with open(path, "r") as config_file:
+        lines = config_file.readlines()
+
+        for number, line in enumerate(lines):
+            line = line.strip().lower()
+
+            if line.startswith("!") or (line == "\n"):
+                continue
+            elif line.startswith("#"):
+                if "gene" in line:
+                    try:
+                        index, genes = _parse_gene_block(
+                            gene_line=line,
+                            rest=lines[number + 1 :],
+                            path=path,
+                            gene_number=number,
+                        )
+
+                        config[index].extend(genes)
+                    except IndexError:
+                        print("Found empty gene block at the end of file. Ignoring.")
+                else:
+                    sys.exit(
+                        (
+                            f"Error in {path}:\n\nline {number}: {line}\n\nFound a '#'"
+                            " but no gene block follows. Remeber to name and index"
+                            " your gene blocks."
+                        )
+                    )
+            else:
+                continue
+
+    return config
 
 
 def find_genes_in_annotation(
@@ -211,10 +283,10 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
-        genes = load_text_file(args.genes_list)
+        genes = parse_config_file(args.genes_list)
 
         if args.exclude:
-            exclusions = load_text_file(args.exclude)
+            exclusions = parse_config_file(args.exclude)
         else:
             exclusions = []
 
