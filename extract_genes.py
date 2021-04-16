@@ -132,7 +132,7 @@ def find_genes_in_annotation(
                 seq=feature.extract(first_record.seq),
                 id=feature.qualifiers["gene"][0],
                 name=feature.qualifiers["gene"][0],
-                description=feature.qualifiers["product"][0],
+                description=f"{feature.qualifiers['product'][0]} for {species_name}",
             ),
         )
         for feature in first_record.features
@@ -159,7 +159,7 @@ def find_genes_in_annotation(
                 seq=feature.extract(record.seq),
                 id=feature.qualifiers["gene"][0],
                 name=feature.qualifiers["gene"][0],
-                description=feature.qualifiers["product"][0],
+                description=f"{feature.qualifiers['product'][0]} for {species_name}",
             ),
         )
         for record in records
