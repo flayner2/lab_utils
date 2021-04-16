@@ -257,24 +257,28 @@ def main() -> None:
         "gbff_path",
         metavar="G",
         type=str,
-        help="path to the input genbank annotation files",
+        help="path to the directory with genbank annotation files",
     )
     parser.add_argument(
         "genes_list",
         metavar="L",
         type=str,
         help=(
-            "path to a text file with a list of strings to search the annotations"
-            ", line-separated"
+            "path to a config file with the genes to search the annotation. See the"
+            " example"
         ),
     )
     parser.add_argument(
         "-o",
         "--out",
-        action="store_true",
+        nargs="?",
+        metavar="O",
+        type=str,
+        default=os.getcwd(),
         help=(
-            "whether an output file should be created for each species (uses species"
-            " name automatically) (by default outputs to STDOUT)"
+            "where the output files should be created for each gene (uses gene"
+            " identifiers automatically). Defaults to the current directory. If not"
+            " used, the program will output to STDOUT."
         ),
     )
     parser.add_argument(
@@ -282,8 +286,18 @@ def main() -> None:
         "--exclude",
         type=str,
         help=(
-            "path to a line-separated text file containing strings to exclude"
-            " from the search"
+            "path to a config file with the terms to exclude from the search of some"
+            " of the genes. See the example"
+        ),
+    )
+    parser.add_argument(
+        "-s",
+        "--species",
+        action="store_true",
+        help=(
+            "if used in conjunction with `-o`, the ouput files will be create for"
+            " each species instead of each gene, using the species name as the file"
+            " name by default."
         ),
     )
 
