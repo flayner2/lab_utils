@@ -1,0 +1,54 @@
+! Lines starting with a "!" will be treated as comments and will be ignored.
+! Each gene should be separated into #gene blocks, which need to be identified.
+! The identifiers will be used to generate the names for the output files when
+! using the "-o" flag and they must match those in the exclusions file.
+
+! Text without "!" and outside a #gene block (like the one below) is ignored.
+error
+
+! Blank lines like the one above are ignored.
+! Each gene block starts with #gene, a space and an identifier (any string or number).
+#gene rrna_18S
+! Any number of terms, separated by line, may be inside a gene block.
+! Comments may also be inside a gene block.
+18S
+small subunit ribosomal
+
+! Blank lines don't separate gene blocks from one another. They are ignored.
+! Use blank lines for your own visual clarity.
+
+#gene rrna_28S
+! Gene names are case-insensitive.
+28S
+large subunit ribosomal
+
+! Case doesn't matter for #gene blocks, and spaces after the "#" are allowed.
+! But spaces (any number of them) between #gene and the identifier is mandatory.
+# GENE     opsin
+long-wavelength opsin
+long wavelength opsin
+long wavelength sensitive opsin
+long-wavelength sensitive opsin
+long-wavelength-sensitive opsin
+
+#gene wingless
+wingless
+
+#gene argk
+argk
+arginine kinase
+
+#gene pepck
+pepck
+phosphoenolpyruvate carboxykinase
+
+#gene ef1_alpha
+EF1α
+elongation factor 1-alpha
+
+#gene rna_pol2
+DNA-directed RNA polymerase II subunit
+
+! If a repeated index is found, all blocks with the same index will be merged.
+#gene rna_pol2
+DNA directed RNA polymerase II subunit

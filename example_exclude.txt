@@ -1,0 +1,23 @@
+! The exclude file follows the same rules and structure as the genes file.
+! Each #gene block in the exclude file will be matched to a gene block of the
+! same identifier in the genes file.
+! If a gene block from an exclude file doesn't match the identifier of any gene block
+! from the genes file, it will be ignored.
+
+#gene rrna_18S
+methyltransferase
+cyclase
+
+#gene rrna_28S
+large subunit protein
+ribosomal protein
+
+#gene opsin
+opsin 2
+rhodopsin
+
+#gene rna_pol2
+polypeptide
+
+#gene ignored
+this will be parsed but will have no effect 
