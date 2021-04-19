@@ -15,6 +15,15 @@ from Bio.SeqRecord import SeqRecord
 
 
 def time_this(f: Callable) -> Callable:
+    """Decorates a function, printing its runtime at the end of the execution.
+
+    Arguments:
+        f (Callable): the function to be decorated.
+
+    Returns:
+        Callable: the decorated function.
+    """
+
     def timing_wrapper(*args, **kwargs) -> None:
         start = time.time()
         f(*args, **kwargs)
