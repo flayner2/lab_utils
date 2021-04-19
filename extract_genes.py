@@ -5,12 +5,32 @@ with all genes.
 """
 import argparse
 from collections import defaultdict
+import multiprocessing
 import os
 import sys
-from typing import Generator
+import time
+from typing import Callable, Generator
 
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
+
+
+def multiprocess(f: Callable, kwargs: dict) -> list:
+    with multiprocessing.Pool() as pool:
+        results = pool.map(f, kwargs=kwargs)
+
+    return results
+
+
+def time_this(f: Callable) -> Callable:
+    def timing_wrapper(*args, **kwargs) -> None:
+        start = time.time()
+        f(*args, **kwargs)
+        duration = time.time() - start
+
+        print(f"Done. Took {duration} to run.")
+
+    return timing_wrapper
 
 
 def _parse_gene_block(
@@ -216,11 +236,14 @@ def find_genes_wrapper(
 
             records = SeqIO.parse(gbff_fullpath, format="genbank")
 
-            species, found_genes = find_genes_in_annotation(
-                records=records, genes=genes, exclude=exclude
+            r = multiprocess(
+                find_genes_in_annotation,
+                kwargs={"records": records, "genes": genes, "exclude": exclude},
             )
 
-            results[species].extend(found_genes)
+            print(r)
+
+            # results[species].extend(found_genes)
 
     return results
 
@@ -269,6 +292,7 @@ def write_dict_out(
                 print(f"{gene.format('fasta')}")
 
 
+@time_this
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
@@ -339,7 +363,7 @@ def main() -> None:
             gbff_folder=args.gbff_path, genes=genes, exclude=exclusions
         )
 
-        write_dict_out(in_dict=found_genes, out=args.out)
+        # write_dict_out(in_dict=found_genes, out=args.out)
     except Exception as err:
         raise err
 
