@@ -27,7 +27,7 @@ do
         raw_reads_2=$(grep -c -h "${id}" ${fastq_dir}/${id}_2*)
         
         # Run bwa to map the reads to the reference and remove the original fastq files
-        bwa mem $ref ${fastq_dir}/${id}_1* ${fastq_dir}/${id}_2* > ${outdir}/${id}_bwa_out.sam
+        bwa mem -t $threads $ref ${fastq_dir}/${id}_1* ${fastq_dir}/${id}_2* > ${outdir}/${id}_bwa_out.sam
         rm -f ${fastq_dir}/${id}*
 
         # Use samtools to convert SAM to BAM and remove the SAM file
