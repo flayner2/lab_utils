@@ -19,14 +19,14 @@ fi
 for id in $ids 
 do
         # Download the SRA dataset, dump the fastq files and clear the prefetch cache
-        prefetch $id
-        fasterq-dump $id --split-files --outdir $fastq_dir -e $threads
-        rm -f $SRA_CACHE/* # Export this variable with the path to your prefetch downloads folder
+        #prefetch $id
+        #fasterq-dump $id --split-files --outdir $fastq_dir -e $threads
+        #rm -f $SRA_CACHE/* # Export this variable with the path to your prefetch downloads folder
         
         # Calculate some stats to print out later
         raw_reads_1=$(grep -c -h "${id}" ${fastq_dir}/${id}_1*)
         raw_reads_2=$(grep -c -h "${id}" ${fastq_dir}/${id}_2*)
-        temp=$(tail -n +2 ${id}_enriched_1.fq | head -n 1 | wc -m)
+        temp=$(tail -n +2 ${fastq_dir}/${id}_1* | head -n 1 | wc -m)
         length=$(($temp - 1))
         raw_nucleotides=$(($length * $raw_reads_1))
 
@@ -37,7 +37,7 @@ do
 
         ## Sort the SAM file, converting it to BAM and removing the unsorted SAM
         samtools sort -n -o ${outdir}/${id}_bwa_out.sorted.bam -@ $threads ${outdir}/${id}_bwa_out.sam
-        rm -f ${outdir}/${id}_bwa_out.sam
+        #rm -f ${outdir}/${id}_bwa_out.sam
 
         ## Use samtools view to filter the sorted BAM file, removing non-propper pairs. Remove the unfiltered BAM file
         samtools view -F 0x04 -f 0x2 -q $mapq_qual -o ${outdir}/${id}_bwa_out.sorted.filtered.bam -@ $threads -b ${outdir}/${id}_bwa_out.sorted.bam
