@@ -28,26 +28,28 @@ def main() -> None:
                     blast_data = csv.reader(csv_file, delimiter="\t")
 
                     gene_name = blast_file.split(".fna")[-1].split(".blastn")[0]
-
                     gene_file_name = f"{species_id}{gene_name}.fasta"
 
-                    for each_hit in blast_data:
-                        if math.floor(float(each_hit[2])) == 100:
-                            new_record = sequences[each_hit[0]]
-                            start, end = int(each_hit[8]), int(each_hit[9])
-                            new_record.seq = new_record.seq[start - 1 : end]
-                            new_record.description = (
-                                f"{new_record.description} {start}:{end}"
-                            )
+                    try:
+                        best_hit = next(blast_data)
+                    except StopIteration:
+                        continue
 
-                            with open(
-                                os.path.join(outdir, gene_file_name), "w+"
-                            ) as outfile:
-                                SeqIO.write(
-                                    sequences=new_record, handle=outfile, format="fasta"
-                                )
+                    positions = [int(best_hit[6]), int(best_hit[7])]
+                    start, end = min(positions), max(positions)
+                    identity, evalue = best_hit[2], best_hit[10]
 
-                            break
+                    new_record = sequences[best_hit[0]]
+                    new_record.seq = new_record.seq[start - 1 : end]
+                    new_record.description = (
+                        f"{new_record.description} {start}:{end}"
+                        f" identity: {identity} e-value: {evalue}"
+                    )
+
+                    with open(os.path.join(outdir, gene_file_name), "w+") as outfile:
+                        SeqIO.write(
+                            sequences=new_record, handle=outfile, format="fasta"
+                        )
 
 
 if __name__ == "__main__":
