@@ -6,6 +6,60 @@ import sys
 from Bio import SeqIO
 
 
+def _shorten_str(string: str, perc: float = 0.2) -> str:
+    assert 0 < perc <= 1.0, "Provide a percentage between 0 and 1"
+
+    max_len = round(len(string) * perc)
+    return string[:max_len]
+
+
+def get_user_choices(blast_hits: dict[str, list]):
+    user_choices = defaultdict(list)
+
+    for gene, all_hits in blast_hits.items():
+        print(f"Gene: {gene}")
+
+        for hit_collection in all_hits:
+            for genome, hits in hit_collection.items():
+                print(f"Genome: {genome}\n")
+                print("\tquery\tsubject\tidentity\talign_length\tevalue\n")
+
+                for pos, hit in enumerate(hits):
+                    query = _shorten_str(hit["query"], 0.2)
+                    subject = _shorten_str(hit["subject"], 0.2)
+                    print(
+                        (
+                            f"{pos}\t{query}...\t{subject}...\t"
+                            f"{hit['identity']}\t{hit['align_len']}"
+                            f"\t{hit['evalue']}\n"
+                        )
+                    )
+
+                while True:
+                    choice = input(
+                        "Choose one by providing a valid index or type 'quit' to exit: "
+                    )
+
+                    if choice.lower() == "quit":
+                        sys.exit(0)
+                    elif choice.isnumeric() and int(choice) in range(0, len(hits)):
+                        choice = int(choice)
+
+                        try:
+                            user_choices[gene].append(hits[choice])
+                        except IndexError:
+                            print("Invalid index, try again...\n")
+                            continue
+                    else:
+                        print(
+                            (
+                                "Invalid option. Provide a valid index or type "
+                                "'quit' to exit.\n"
+                            )
+                        )
+                        continue
+
+
 def load_blast_results(path: str, genes: list) -> dict[str, list]:
     blast_results = defaultdict(list)
 
@@ -61,6 +115,7 @@ def main() -> None:
 
     gene_names = get_gene_names(fasta_files_path)
     blast_results = load_blast_results(blast_files_path, gene_names)
+    choices = get_user_choices(blast_results)
 
 
 if __name__ == "__main__":
