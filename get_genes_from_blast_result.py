@@ -22,16 +22,15 @@ def load_blast_results(path: str, genes: list) -> dict[str, list]:
 
             with open(file_path, "r") as tsv_file:
                 tsv_reader = csv.reader(tsv_file, delimiter="\t")
+                hits = defaultdict(list)
 
                 for row in tsv_reader:
-                    hits = defaultdict(list)
-
                     each_hit = {}
                     each_hit["query"] = row[0]
                     each_hit["subject"] = row[1]
-                    each_hit["identity"] = row[2]
-                    each_hit["align_len"] = row[3]
-                    each_hit["evalue"] = row[10]
+                    each_hit["identity"] = float(row[2])
+                    each_hit["align_len"] = int(row[3])
+                    each_hit["evalue"] = float(row[10])
 
                     hits[genome_name].append(each_hit)
                     blast_results[gene_name].append(hits)
