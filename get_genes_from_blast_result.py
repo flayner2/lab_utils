@@ -16,7 +16,7 @@ def get_sequences_from_choices(path: str, choices: dict[str, list]) -> dict[str,
     chosen_sequences = defaultdict(list)
 
     for genome_file in os.listdir(path):
-        if genome_file.endswith((".fasta", ".fa", ".fna", ".fas", ".faa")):
+        if genome_file.endswith((".fasta", ".fa", ".fna", ".fas", ".faa", ".longest")):
             genome_file_path = os.path.join(path, genome_file)
 
             genome = SeqIO.to_dict(SeqIO.parse(genome_file_path, "fasta"))
@@ -129,7 +129,7 @@ def get_gene_names(path: str) -> list[str]:
     return [
         os.path.splitext(each_file)[0]
         for each_file in os.listdir(path)
-        if each_file.endswith((".fasta", ".fa", ".fna", ".fas", ".faa"))
+        if each_file.endswith((".fasta", ".fa", ".fna", ".fas", ".faa", ".longest"))
     ]
 
 
