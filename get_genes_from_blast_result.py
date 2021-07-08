@@ -6,6 +6,32 @@ import sys
 from Bio import SeqIO
 
 
+def _write_output(path: str, sequences: dict[str, list]) -> None:
+    for gene, all_sequences in sequences.items():
+        with open(os.path.join(path, f"{gene}.fas"), "w+") as outfile:
+            SeqIO.write(all_sequences, outfile, "fasta")
+
+
+def get_sequences_from_choices(path: str, choices: dict[str, list]) -> dict[str, list]:
+    chosen_sequences = defaultdict(list)
+
+    for genome_file in os.listdir(path):
+        if genome_file.endswith((".fasta", ".fa", ".fna", ".fas", ".faa")):
+            genome_file_path = os.path.join(path, genome_file)
+
+            genome = SeqIO.to_dict(SeqIO.parse(genome_file_path, "fasta"))
+
+            for gene, all_choices in choices.items():
+                for choice in all_choices:
+                    if choice["subject"] in genome.keys():
+                        record = genome[choice["subject"]]
+                        record.description = genome_file
+                        chosen_sequences[gene].append(record)
+                        break
+
+    return chosen_sequences
+
+
 def _shorten_str(string: str, perc: float = 0.2) -> str:
     assert 0 < perc <= 1.0, "Provide a percentage between 0 and 1"
 
@@ -105,17 +131,20 @@ def get_gene_names(path: str) -> list[str]:
 def main() -> None:
     assert len(sys.argv) == 5, (
         "Run this script with: python3 get_genes_from_blast_result.py "
-        "[path_to_blast_files] [path_to_fasta_files] [output_directory]"
+        "[path_to_blast_files] [path_to_gene_files] [path to genome files] "
+        "[output_directory]"
     )
 
     blast_files_path = sys.argv[1]
     gene_files_path = sys.argv[2]
     genome_files_path = sys.argv[3]
-    # outdir = sys.argv[4]
+    outdir = sys.argv[4]
 
     gene_names = get_gene_names(gene_files_path)
     blast_results = load_blast_results(blast_files_path, gene_names)
     choices = get_user_choices(blast_results)
+    sequences = get_sequences_from_choices(genome_files_path, choices)
+    _write_output(outdir, sequences)
 
 
 if __name__ == "__main__":
