@@ -13,7 +13,7 @@ def _shorten_str(string: str, perc: float = 0.2) -> str:
     return string[:max_len]
 
 
-def get_user_choices(blast_hits: dict[str, list]):
+def get_user_choices(blast_hits: dict[str, list]) -> dict[str, list]:
     user_choices = defaultdict(list)
 
     for gene, all_hits in blast_hits.items():
@@ -25,11 +25,11 @@ def get_user_choices(blast_hits: dict[str, list]):
                 print("\tquery\tsubject\tidentity\talign_length\tevalue\n")
 
                 for pos, hit in enumerate(hits):
-                    query = _shorten_str(hit["query"], 0.2)
-                    subject = _shorten_str(hit["subject"], 0.2)
+                    query = _shorten_str(hit["query"], 0.3)
+                    subject = _shorten_str(hit["subject"], 1)
                     print(
                         (
-                            f"{pos}\t{query}...\t{subject}...\t"
+                            f"{pos}\t{query}...\t{subject}\t"
                             f"{hit['identity']}\t{hit['align_len']}"
                             f"\t{hit['evalue']}\n"
                         )
@@ -58,6 +58,8 @@ def get_user_choices(blast_hits: dict[str, list]):
                             )
                         )
                         continue
+
+    return user_choices
 
 
 def load_blast_results(path: str, genes: list) -> dict[str, list]:
