@@ -95,27 +95,25 @@ def load_blast_results(path: str, genes: list) -> dict[str, list]:
 
 
 def get_gene_names(path: str) -> list[str]:
-    gene_names = []
-
-    for each_file in os.listdir(path):
-        if each_file.endswith((".fasta", ".fa", ".fna", ".fas")):
-            gene = os.path.splitext(each_file)[0]
-            gene_names.append(gene)
-
-    return gene_names
+    return [
+        os.path.splitext(each_file)[0]
+        for each_file in os.listdir(path)
+        if each_file.endswith((".fasta", ".fa", ".fna", ".fas", ".faa"))
+    ]
 
 
 def main() -> None:
-    assert len(sys.argv) == 4, (
+    assert len(sys.argv) == 5, (
         "Run this script with: python3 get_genes_from_blast_result.py "
         "[path_to_blast_files] [path_to_fasta_files] [output_directory]"
     )
 
     blast_files_path = sys.argv[1]
-    fasta_files_path = sys.argv[2]
-    # outdir = sys.argv[3]
+    gene_files_path = sys.argv[2]
+    genome_files_path = sys.argv[3]
+    # outdir = sys.argv[4]
 
-    gene_names = get_gene_names(fasta_files_path)
+    gene_names = get_gene_names(gene_files_path)
     blast_results = load_blast_results(blast_files_path, gene_names)
     choices = get_user_choices(blast_results)
 
