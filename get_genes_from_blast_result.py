@@ -43,7 +43,7 @@ def get_user_choices(blast_hits: dict[str, list]) -> dict[str, list]:
     user_choices = defaultdict(list)
 
     for gene, all_hits in blast_hits.items():
-        if not all(all_hits):
+        if not any(all_hits):
             print(f"Nothing found for gene {gene}.")
         else:
             print(f"Gene: {gene}")
