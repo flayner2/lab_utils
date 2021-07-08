@@ -73,6 +73,7 @@ def get_user_choices(blast_hits: dict[str, list]) -> dict[str, list]:
 
                         try:
                             user_choices[gene].append(hits[choice])
+                            break
                         except IndexError:
                             print("Invalid index, try again...\n")
                             continue
