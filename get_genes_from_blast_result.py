@@ -116,7 +116,8 @@ def load_blast_results(path: str, genes: list) -> dict[str, list]:
                     each_hit["evalue"] = float(row[10])
 
                     hits[genome_name].append(each_hit)
-                    blast_results[gene_name].append(hits)
+
+                blast_results[gene_name].append(hits)
 
     return blast_results
 
